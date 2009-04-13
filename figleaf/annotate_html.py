@@ -9,6 +9,7 @@ Functions:
  - make_html_filename
  - escape_html
 """
+from bisect import bisect
 import os
 import re
 
@@ -43,14 +44,14 @@ def annotate_file_html(fp, lines, covered):
 
             n_lines += 1
 
-        color = 'black'
+        color = ''
         if is_covered:
-            color = 'green'
+            color = 'covered'
         elif is_line:
-            color = 'red'
+            color = 'uncovered'
 
         line = escape_html(line.rstrip())
-        output.append('<font color="%s">%4d. %s</font>' % (color, i, line))
+        output.append('<span class="%s"><strong>%4d</strong> %s</span>' % (color, i, line))
 
     try:
         percent = n_covered * 100. / n_lines
@@ -86,41 +87,64 @@ def write_html_summary(info_dict, directory):
 
     index_fp = open('%s/index.html' % (directory,), 'w')
     index_fp.write('''
-<html>
-<title>figleaf code coverage report</title>
-<h2>Summary</h2>
-%d files total: %d files &gt; 90%%, %d files &gt; 75%%, %d files &gt; 50%%
-<p>
-<table border=1>
-<tr>
- <th>Filename</th><th># lines</th><th># covered</th><th>%% covered</th>
-</tr>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
 
-<tr>
- <td><b>totals:</b></td>
- <td><b>%d</b></td>
- <td><b>%d</b></td>
- <td><b>%.1f%%</b></td>
-</tr>
-
-<tr></tr>
-
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Figleaf code coverage report</title>
+    <style type="text/css" media="screen">
+        body { padding: 20px; font-family: helvetica, arial, sans-serif; color: #333; }
+        table { width: 100%%; border-collapse: collapse; border: none; font-size: 13px; }
+        th { padding: 5px 10px; border: none; border-bottom: 1px solid #ddd; text-align: left; color: #999; }
+        td { padding: 5px 10px; border: none; border-bottom: 1px solid #ddd; border-left: 1px solid #eee; }
+        td.name { padding-left: 0; border-left: none; }
+        tr.normal td.percent { background: #e8f6e5; color: #509e42; }
+        tr.warning td.percent { background: #fff7d9; color: #cea000; }
+        tr.critical td.percent { background: #f8e1d9; color: #d13600; }
+        tr.totals td { font-size: 20px; }
+        h2 { margin: 0 0 5px 0; }
+        p { margin: 0; font-size: 14px; }
+        a { text-decoration: none; color: #175e99; }
+        a:hover { text-decoration: underline; }
+        a:visited { color: #8baecc; }
+        #summary { margin-bottom: 10px; padding: 10px; background: #eee; border-bottom: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+<div id="summary">
+    <h2>Summary</h2>
+    <p>%d files total: %d files &gt; 90%%, %d files &gt; 75%%, %d files &gt; 50%%</p>
+</div>
+<table>
+    <tr>
+        <th>Filename</th><th># lines</th><th># covered</th><th>%% covered</th>
+    </tr>
+    <tr class="totals">
+        <td class="name"><strong>Totals</strong></td>
+        <td class="lines"><strong>%d</strong></td>
+        <td class="covered"><strong>%d</strong></td>
+        <td class="percent"><strong>%.1f%%</strong></td>
+    </tr>
 ''' % (len(percents), len(percent_90), len(percent_75), len(percent_50),
        summary_lines, summary_cover, summary_percent,))
-
+    
+    status = ['critical', 'warning', 'normal']
+    breakpoints = [50, 80]
     for filename, (n_lines, n_covered, percent_covered,) in info_dict_items:
         html_outfile = make_html_filename(filename)
 
         index_fp.write('''
-<tr>
- <td><a href="./%s">%s</a></td>
- <td>%d</td>
- <td>%d</td>
- <td>%.1f</td>
+<tr class="%s">
+    <td class="name"><a href="./%s">%s</a></td>
+    <td class="lines">%d</td>
+    <td class="covered">%d</td>
+    <td class="percent">%.1f%%</td>
 </tr>
-''' % (html_outfile, filename, n_lines, n_covered, percent_covered,))
+''' % (status[bisect(breakpoints, percent_covered)], html_outfile, filename, n_lines, n_covered, percent_covered,))
 
-    index_fp.write('</table>\n')
+    index_fp.write('</table>\n</body>\n</html>')
     index_fp.close()
 
 def report_as_html(coverage, directory, exclude_patterns, files_list,
@@ -163,16 +187,41 @@ def report_as_html(coverage, directory, exclude_patterns, files_list,
         html_outfile = make_html_filename(filename)
         html_outfile = os.path.join(directory, html_outfile)
         html_outfp = open(html_outfile, 'w')
-        
-        html_outfp.write('source file: <b>%s</b><br>\n' % (filename,))
         html_outfp.write('''
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
 
-file stats: <b>%d lines, %d executed: %.1f%% covered</b>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Figleaf code coverage report</title>
+    <style type="text/css" media="screen">
+        body { padding: 20px; font-family: helvetica, arial, sans-serif; color: #333; }
+        table { width: 100%%; border-collapse: collapse; border: none; font-size: 13px; }
+        h2 { margin: 0 0 5px 0; font-size: 18px; }
+        p { margin: 0; font-size: 14px; }
+        a { text-decoration: none; color: #175e99; }
+        a:hover { text-decoration: underline; }
+        a:visited { color: #8baecc; }
+        #summary { margin-bottom: 10px; padding: 10px; background: #eee; border-bottom: 1px solid #ddd; }
+        pre { font-size: 12px; line-height: 16px; }
+        pre span strong { padding: 1px 0; background: #eee; border-right: 1px solid #ddd; font-weight: normal; color: #555; }
+        pre span { padding: 1px 0; }
+        pre span.covered { background: #e8f6e5; color: #509e42; }
+        pre span.uncovered { background: #f8e1d9; color: #d13600; }
+    </style>
+</head>
+<body>
+<div id="summary">
+    <h2>Source file: <strong>%s</strong></h2>
+    <p>File stats: <strong>%d lines, %d executed: %.1f%% covered</strong></p>
+</div>
 <pre>
 %s
 </pre>
-
-''' % (n_lines, n_covered, percent, "\n".join(output)))
+</body>
+</html>
+''' % (html_outfile, n_lines, n_covered, percent, "\n".join(output)))
             
         html_outfp.close()
 
