@@ -100,9 +100,9 @@ def write_html_summary(info_dict, directory):
         th { padding: 5px 10px; border: none; border-bottom: 1px solid #ddd; text-align: left; color: #999; }
         td { padding: 5px 10px; border: none; border-bottom: 1px solid #ddd; border-left: 1px solid #eee; }
         td.name { padding-left: 0; border-left: none; }
-        tr.normal td.percent { background: #e8f6e5; color: #509e42; }
-        tr.warning td.percent { background: #fff7d9; color: #cea000; }
-        tr.critical td.percent { background: #f8e1d9; color: #d13600; }
+        tr.normal td.percent { background: #e8f6e5; border-color: #b0e0a8; color: #509e42; }
+        tr.warning td.percent { background: #fff7d9; border-color: #ffe27f; color: #cea000; }
+        tr.critical td.percent { background: #f8e1d9; border-color: #f1c2b2; color: #d13600; }
         tr.totals td { font-size: 20px; }
         h2 { margin: 0 0 5px 0; }
         p { margin: 0; font-size: 14px; }
@@ -204,9 +204,9 @@ def report_as_html(coverage, directory, exclude_patterns, files_list,
         a:hover { text-decoration: underline; }
         a:visited { color: #8baecc; }
         #summary { margin-bottom: 10px; padding: 10px; background: #eee; border-bottom: 1px solid #ddd; }
-        pre { font-size: 12px; line-height: 16px; }
-        pre span strong { padding: 1px 0; background: #eee; border-right: 1px solid #ddd; font-weight: normal; color: #555; }
-        pre span { padding: 1px 0; }
+        pre { font-size: 11px; line-height: 19px; font-family: 'Monaco', 'Courier New', monospace; }
+        pre span strong { padding: 2px 5px; background: #eee; border-right: 1px solid #ddd; font-weight: normal; color: #999; }
+        pre span { padding: 2px 0; }
         pre span.covered { background: #e8f6e5; color: #509e42; }
         pre span.uncovered { background: #f8e1d9; color: #d13600; }
     </style>
