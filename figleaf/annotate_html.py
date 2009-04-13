@@ -204,9 +204,9 @@ def report_as_html(coverage, directory, exclude_patterns, files_list,
         a:hover { text-decoration: underline; }
         a:visited { color: #8baecc; }
         #summary { margin-bottom: 10px; padding: 10px; background: #eee; border-bottom: 1px solid #ddd; }
-        pre { font-size: 11px; line-height: 19px; font-family: 'Monaco', 'Courier New', monospace; }
-        pre span strong { padding: 2px 5px; background: #eee; border-right: 1px solid #ddd; font-weight: normal; color: #999; }
-        pre span { padding: 2px 0; }
+        pre { font-size: 11px; line-height: 17px; font-family: 'Monaco', 'Courier New', monospace; }
+        pre span strong { padding: 1px 5px; background: #eee; border-right: 1px solid #ddd; font-weight: normal; color: #999; }
+        pre span { padding: 1px 0; }
         pre span.covered { background: #e8f6e5; color: #509e42; }
         pre span.uncovered { background: #f8e1d9; color: #d13600; }
     </style>
